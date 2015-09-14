@@ -53,11 +53,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigatronDataCompleter.cs" />
+    <Compile Include="Interfaces\IConfigDataCompleter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

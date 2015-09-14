@@ -135,13 +135,14 @@ namespace FakeRake
 				+ ".config";
 			
 			string data = File.ReadAllText(filename);
-			var configData = Regex.Replace(data, @"#\{(.*?)\}", HandleReplacement);
+			var completer = new ConfigatronDataCompleter() {SettingsDictionary = _settingsDictionary};
+			var configData = completer.CompleteData(data);
 			
 			if(File.Exists(configPath))
 			{
 				var attributes = File.GetAttributes(configPath);
 				attributes = attributes & (~FileAttributes.ReadOnly);
-				File.Delete(configPath);
+				File.SetAttributes(configPath, attributes);
 			}
 			
 			File.WriteAllText(configPath, configData);
@@ -149,19 +150,6 @@ namespace FakeRake
 			return;
 		}
 		
-		protected static string HandleReplacement(Match m)
-		{
-			var key = m.Groups[1].Value.ToUpper();
-			var match = Regex.Match(key,"^configatron\\.(.*)$", RegexOptions.IgnoreCase);
-			if (match.Success){
-				key = match.Groups[1].Value;
-			}
-			var result = m.Value;
-			if (_settingsDictionary.ContainsKey(key))
-			{
-				result = _settingsDictionary[key];
-			}
-			return result;
-		}
+		
 	}
 }
