@@ -1,0 +1,4 @@
+c:\Sandbox\FakeRake\FakeRake\bin\Release\FakeRake.exe.config
+c:\Sandbox\FakeRake\FakeRake\bin\Release\FakeRake.exe
+c:\Sandbox\FakeRake\FakeRake\obj\Release\FakeRake.csprojResolveAssemblyReference.cache
+c:\Sandbox\FakeRake\FakeRake\obj\Release\FakeRake.exe
