@@ -4,3 +4,8 @@ c:\Sandbox\FakeRake\FakeRake\bin\Debug\FakeRake.exe
 c:\Sandbox\FakeRake\FakeRake\bin\Debug\FakeRake.pdb
 c:\Sandbox\FakeRake\FakeRake\obj\Debug\FakeRake.exe
 c:\Sandbox\FakeRake\FakeRake\obj\Debug\FakeRake.pdb
+c:\Sandbox\FakeRake\FakeRake\bin\Debug\Microsoft.Office.Interop.Excel.dll
+c:\Sandbox\FakeRake\FakeRake\bin\Debug\office.dll
+c:\Sandbox\FakeRake\FakeRake\bin\Debug\Microsoft.Vbe.Interop.dll
+c:\Sandbox\FakeRake\FakeRake\bin\Debug\Microsoft.Office.Interop.Excel.xml
+c:\Sandbox\FakeRake\FakeRake\bin\Debug\office.xml

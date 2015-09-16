@@ -7,6 +7,7 @@ using System.Data.OleDb;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace FakeRake
 {
@@ -54,34 +55,52 @@ namespace FakeRake
 		
 		private static  Dictionary<string, string> GetSettingsDictionary(string environmentName)
 		{
+			
+			
 			var configatronPath = GetConfigatronPath();
 			var result = new Dictionary<string, string>();
-			string connectionString = string.Format("Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties=\"Excel 8.0;HDR=YES;\"", configatronPath);
+			string connectionString = string.Format("Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties=\"Excel 8.0;HDR=No;IMEX=1;\";", configatronPath);
 			using (var conn = new OleDbConnection(connectionString))
 			{
 				conn.Open();
-				using (var cmd = new OleDbCommand())
+				
+				string sql = "Select * from [Sheet1$]";
+				using (var adaptor = new OleDbDataAdapter(sql,conn))
 				{
-					cmd.CommandText = "Select * from [Sheet1$]";
-					cmd.CommandType = CommandType.Text;
-					cmd.Connection = conn;
-					var reader = cmd.ExecuteReader();
+					DataTable dt = new DataTable();
+					adaptor.Fill(dt);
 					var configFieldIndex = 0;
-					int dataFieldIndex;
-					try{
-						dataFieldIndex = reader.GetOrdinal(environmentName.ToUpper());
-					}
-					catch (IndexOutOfRangeException)
+					int dataFieldIndex = -1;
+					
+					if (dt.Rows.Count > 0)
 					{
-						throw new ApplicationException(string.Format("Unable to find environment {0} in the configuration.xls file...", environmentName));
+						var dr = dt.Rows[0];
+						
+						for(int tempIndex = 0; tempIndex < dt.Columns.Count; tempIndex++)
+						{
+							var colName = dr[tempIndex].ToString();
+							if (string.Equals(colName, environmentName.ToUpper(), StringComparison.InvariantCultureIgnoreCase)){
+								dataFieldIndex = tempIndex;
+								break;
+							}
+						}
 					}
 					
+					if (dataFieldIndex == -1) throw new ApplicationException(string.Format("Unable to find environment {0} in the configuration.xls file...", environmentName));
 					
-					while (reader.Read())
+					
+					
+					for (int tempIndex = 1; tempIndex < dt.Rows.Count; tempIndex++)
 					{
-						var key = reader.GetString(configFieldIndex).ToUpper();
-						var value = reader.GetValue(dataFieldIndex).ToString();
+						var key = dt.Rows[tempIndex][configFieldIndex].ToString().ToUpper();
+						
+						var value = dt.Rows[tempIndex][dataFieldIndex].ToString();
 						result[key] = value;
+						if (string.IsNullOrWhiteSpace(value)) 
+						{
+							result[key]="Whatever...";
+						}
+						
 					}
 					
 				}
