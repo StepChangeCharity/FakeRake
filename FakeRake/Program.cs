@@ -64,7 +64,14 @@ namespace FakeRake
 			{
 				conn.Open();
 				
-				string sql = "Select * from [Sheet1$]";
+				var schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+				var tableName = "Sheet1";
+				if (schema.Rows.Count > 0)
+				{
+					tableName = schema.Rows[0][2].ToString();
+				}
+				
+				string sql = String.Format("Select * from [{0}]", tableName);
 				using (var adaptor = new OleDbDataAdapter(sql,conn))
 				{
 					DataTable dt = new DataTable();
