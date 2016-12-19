@@ -106,7 +106,7 @@ namespace FakeRake
 						result[key] = value;
 						if (string.IsNullOrWhiteSpace(value)) 
 						{
-							result[key]="Whatever...";
+							result[key]="";
 						}
 						
 					}
