@@ -3,3 +3,6 @@
 ################################################################################
 
 /FakeRake.v11.suo
+/FakeRake/bin/Debug
+/FakeRake/obj/Debug
+/FakeRake/FakeRake.csproj.user

@@ -18,6 +18,7 @@ namespace FakeRake
 		
 		protected static Dictionary<string, string> _settingsDictionary;
 		protected static List<Task> _tasks = new List<Task>();
+		protected static List<string> _processed = new List<string>();
 		
 		public static void Main(string[] args)
 		{
@@ -38,9 +39,9 @@ namespace FakeRake
 			
 			
 			// TODO: Implement Functionality Here
-			
-			Console.Write("Press any key to continue . . . ");
-			Console.ReadKey(true);
+			foreach (string processed in _processed) {
+				Console.WriteLine(processed);
+			}
 		}
 		
 		private static string GetEnvironmentName()
@@ -135,6 +136,7 @@ namespace FakeRake
 			foreach (var file in configatronFiles)
 			{
 				_tasks.Add(GetConfigurationFileTask(file.FullName));
+				_processed.Add(file.FullName);
 			}
 			
 			
