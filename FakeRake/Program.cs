@@ -25,9 +25,10 @@ namespace FakeRake
 			
 			// Get the environment name...
 			var environmentName = GetEnvironmentName();
+			var targetSheetName = GetTargetSheetName();
 			
 			// Now build the dictionary...
-			_settingsDictionary = GetSettingsDictionary(environmentName);
+			_settingsDictionary = GetSettingsDictionary(environmentName, targetSheetName);
 			
 			// Now run from this folder downward
 			ProcessFolder(System.IO.Directory.GetCurrentDirectory());
@@ -47,16 +48,42 @@ namespace FakeRake
 		private static string GetEnvironmentName()
 		{
 			var args = System.Environment.GetCommandLineArgs();
-			if (args.Count() != 2)
+			if (args.Count() < 2)
 			{
+				ShowSyntax();
 				throw new ArgumentException("You have failed to supply the correct number of command line parameters (i.e. 1 - the name of the environment to use)");
 			}
 			return args[1];
 		}
-		
-		private static  Dictionary<string, string> GetSettingsDictionary(string environmentName)
+
+		private static string GetTargetSheetName()
 		{
-			
+			var args = System.Environment.GetCommandLineArgs();
+
+			if (args.Count() < 3)
+			{
+				// use default
+				return "Sheet1";
+			}
+			return args[2];
+		}
+
+		private static void ShowSyntax() 
+		{
+			Console.WriteLine("FakeRake:");
+			Console.WriteLine("Usage:");
+			Console.WriteLine("\tfakerake environment [targetsheet]");
+			Console.WriteLine("");
+			Console.WriteLine("Where:");
+			Console.WriteLine("\tenvironment is the column of settings you're after (e.g. \"developer_a\"");
+			Console.WriteLine("\ttargetsheet is the name of the worksheet to load from (e.g. \"Sheet1\" - \"Sheet1\" is the default)");
+			Console.WriteLine();
+		}
+
+		
+		private static  Dictionary<string, string> GetSettingsDictionary(string environmentName, string targetSheetName = "Sheet1")
+		{
+			const int SHEET_COLUMN_INDEX = 2;
 			
 			var configatronPath = GetConfigatronPath();
 			var result = new Dictionary<string, string>();
@@ -66,10 +93,26 @@ namespace FakeRake
 				conn.Open();
 				
 				var schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-				var tableName = "Sheet1";
-				if (schema.Rows.Count > 0)
+				//var tableName = "Sheet1";
+				//if (schema.Rows.Count > 0)
+				//{
+				//	tableName = schema.Rows[0][2].ToString();
+				//}
+
+				string tableName = "";
+				foreach (DataRow sheet in schema.Rows) 
 				{
-					tableName = schema.Rows[0][2].ToString();
+					// we lose the "$" as it's an Excel thing ... the caller passing the parameters probably isn't aware
+					if (sheet.ItemArray[SHEET_COLUMN_INDEX].ToString().Replace("$", "") == targetSheetName)
+					{
+						tableName = sheet.ItemArray[SHEET_COLUMN_INDEX].ToString();
+						break;
+					}
+				}
+
+				if (string.IsNullOrEmpty(tableName)) 
+				{
+					throw new ApplicationException(string.Format("Could not find a worksheet named '{0}'", targetSheetName));
 				}
 				
 				string sql = String.Format("Select * from [{0}]", tableName);
@@ -94,9 +137,11 @@ namespace FakeRake
 						}
 					}
 					
-					if (dataFieldIndex == -1) throw new ApplicationException(string.Format("Unable to find environment {0} in the configuration.xls file...", environmentName));
-					
-					
+					if (dataFieldIndex == -1) 
+					{
+						throw new ApplicationException(string.Format("Unable to find environment {0} in the configuration.xls file...", environmentName));
+					}
+									
 					
 					for (int tempIndex = 1; tempIndex < dt.Rows.Count; tempIndex++)
 					{
